@@ -169,21 +169,24 @@ export const deepMerge = <T extends Record<string, any>>(
   target: T,
   source: Partial<T>
 ): T => {
-  const output = { ...target };
+  const output: Record<string, any> = { ...target };
+  const targetRecord = target as Record<string, any>;
+  const sourceRecord = source as Record<string, any>;
+
   if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach((key) => {
-      if (isObject(source[key])) {
-        if (!(key in target)) {
-          Object.assign(output, { [key]: source[key] });
+    Object.keys(sourceRecord).forEach((key) => {
+      if (isObject(sourceRecord[key])) {
+        if (!(key in targetRecord)) {
+          Object.assign(output, { [key]: sourceRecord[key] });
         } else {
-          (output as any)[key] = deepMerge(target[key], source[key]);
+          output[key] = deepMerge(targetRecord[key], sourceRecord[key]);
         }
       } else {
-        Object.assign(output, { [key]: source[key] });
+        Object.assign(output, { [key]: sourceRecord[key] });
       }
     });
   }
-  return output;
+  return output as T;
 };
 
 const isObject = (item: any): item is Record<string, any> => {
