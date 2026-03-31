@@ -389,6 +389,15 @@ export class PaymentService {
     if (!response.ok) throw new Error('Refund request failed');
     return response.json();
   }
+
+  async approvePaymentRequest(requestId: string, approved: boolean, reason?: string): Promise<Record<string, unknown>> {
+    const response = await this.authedFetch(`/cash/${requestId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ approved, reason }),
+    });
+    if (!response.ok) throw new Error('Failed to update payment request');
+    return response.json();
+  }
 }
 
 const paymentService = new PaymentService();
