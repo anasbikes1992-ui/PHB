@@ -16,8 +16,12 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     try {
-      await login(email, password);
-      router.push('/');
+      const loggedInUser = await login(email, password);
+      if ((loggedInUser as { role?: string })?.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     }

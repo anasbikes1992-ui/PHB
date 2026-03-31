@@ -4,8 +4,8 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import type { AuthUser } from '../lib/api';
 
 type AuthContextType = {
-  user: AuthUser | null;
-  login: (email: string, password: string) => Promise<void>;
+  user: AuthUser | null | undefined; // undefined = not yet checked
+  login: (email: string, password: string) => Promise<AuthUser>;
   register: (fullName: string, email: string, password: string, passwordConfirmation: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
@@ -20,7 +20,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null | undefined>(undefined); // undefined = hydrating
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string): Promise<AuthUser> => {
       setLoading(true);
       try {
         const res = await fetch('/api/auth/login', {
@@ -83,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const u = data.data?.user ?? data.user;
         if (!u) throw new Error('Invalid response from server');
         persist(u);
+        return u;
       } finally {
         setLoading(false);
       }
