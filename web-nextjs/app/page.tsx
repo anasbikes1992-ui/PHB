@@ -76,6 +76,24 @@ export default async function HomePage() {
       emoji: '🏪',
       tone: 'gold',
     },
+    {
+      title: 'Experiences & Tours',
+      meta: 'Whale Watch • Safari • Surf',
+      description: 'Curated Sri Lankan experiences — whale watching in Mirissa, Yala safaris, Arugam Bay surf, and more, all bookable in minutes.',
+      count: '280+ experiences',
+      href: '/experiences',
+      emoji: '🌊',
+      tone: 'teal',
+    },
+    {
+      title: 'Social',
+      meta: 'Stories • Reviews • Community',
+      description: 'Connect with the PearlHub community. Share reviews, travel stories, and local discoveries across every vertical.',
+      count: 'Growing community',
+      href: '/social',
+      emoji: '💬',
+      tone: 'gold',
+    },
   ];
 
   const searchTags = ['Beach Villas', 'Penthouse', 'EV Rentals', 'Live Concerts', 'Local Crafts'];
@@ -120,8 +138,8 @@ export default async function HomePage() {
           <p className="market-kicker">✨ Sri Lanka&apos;s #1 ecosystem</p>
           <h1>Sri Lanka&apos;s #1 Luxury Marketplace</h1>
           <p className="market-hero__copy">
-            Discover properties, stays, vehicles, events, and local businesses in one premium marketplace.
-            From colonial bungalows in Nuwara Eliya to Colombo penthouses and curated experiences across the island.
+            Eight verticals. One premium platform. Discover properties, stays, vehicles, events, experiences,
+            taxi, local businesses, and community connections — from Colombo penthouses to Mirissa whale watches.
           </p>
 
           <div className="market-hero__actions">
@@ -156,7 +174,7 @@ export default async function HomePage() {
         <div className="market-shell">
           <div className="market-section__intro">
             <p className="market-kicker">Explore Sri Lanka with Pearl Hub</p>
-            <h2>Four powerful platforms, one seamless experience.</h2>
+            <h2>Eight verticals, one seamless experience.</h2>
             <p>
               The visual direction follows the reference product closely: bold marketplace cards, dark premium surfaces,
               neon cyan highlights, and warm gold accents tuned for Sri Lankan luxury and trust.

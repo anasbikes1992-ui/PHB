@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\SocialController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\CashbackController;
 use App\Http\Controllers\Api\V1\HealthController;
@@ -74,5 +75,21 @@ Route::prefix('v1')->group(function (): void {
             Route::put('/users/{userId}', [AdminController::class, 'updateUser']);
             Route::post('/cashback/{cashbackRecord}/credit', [CashbackController::class, 'credit']);
         });
+
+        // Social — auth-required write routes
+        Route::prefix('social')->group(function (): void {
+            Route::post('/posts', [SocialController::class, 'createPost']);
+            Route::post('/posts/{post}/like', [SocialController::class, 'toggleLike']);
+            Route::post('/posts/{post}/comments', [SocialController::class, 'addComment']);
+            Route::post('/users/{user}/follow', [SocialController::class, 'follow']);
+            Route::delete('/users/{user}/follow', [SocialController::class, 'unfollow']);
+        });
+    });
+
+    // Social — public read routes (outside auth middleware)
+    Route::prefix('social')->group(function (): void {
+        Route::get('/feed', [SocialController::class, 'feed']);
+        Route::get('/posts/{post}/comments', [SocialController::class, 'comments']);
+        Route::get('/users/{user}/profile', [SocialController::class, 'profile']);
     });
 });

@@ -14,6 +14,7 @@ const verticals = [
   { href: '/experiences', label: 'Experiences' },
   { href: '/sme', label: 'SME' },
   { href: '/taxi', label: 'Taxi' },
+  { href: '/social', label: 'Social' },
 ];
 
 export default function SiteHeader() {

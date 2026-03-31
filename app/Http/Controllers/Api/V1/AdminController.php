@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Booking;
 use App\Models\Listing;
+use App\Models\SocialPost;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,13 +13,29 @@ class AdminController extends BaseApiController
 {
     public function stats(): JsonResponse
     {
+        $bookingsByVertical = Booking::query()
+            ->whereNotIn('status', ['cancelled', 'refunded'])
+            ->where('created_at', '>=', now()->subDays(30))
+            ->join('listings', 'bookings.listing_id', '=', 'listings.id')
+            ->groupBy('listings.vertical')
+            ->selectRaw('listings.vertical, COUNT(*) as count')
+            ->pluck('count', 'listings.vertical')
+            ->toArray();
+
         return $this->success([
-            'total_users'           => User::query()->count(),
-            'total_listings'        => Listing::query()->where('status', 'published')->count(),
-            'pending_verifications' => Listing::query()->where('status', 'pending_verification')->count(),
-            'platform_revenue'      => Booking::query()
+            'total_users'              => User::query()->count(),
+            'total_listings'           => Listing::query()->where('status', 'published')->count(),
+            'pending_verifications'    => Listing::query()->where('status', 'pending_verification')->count(),
+            'platform_revenue'         => Booking::query()
                 ->whereNotIn('status', ['cancelled', 'refunded'])
                 ->sum('total_amount'),
+            'bookings_30d'             => Booking::query()
+                ->whereNotIn('status', ['cancelled', 'refunded'])
+                ->where('created_at', '>=', now()->subDays(30))
+                ->count(),
+            'pending_kyc'              => User::query()->where('kyc_status', 'pending')->count(),
+            'flagged_posts'            => SocialPost::query()->where('is_flagged', true)->count(),
+            'bookings_by_vertical'     => $bookingsByVertical,
         ]);
     }
 

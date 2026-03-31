@@ -12,7 +12,8 @@ const footerColumns = [
       { href: '/events', label: 'Events' },
       { href: '/experiences', label: 'Experiences & Tours' },
       { href: '/sme', label: 'Local Businesses' },
-      { href: '/taxi', label: 'Pearl Taxi' }
+      { href: '/taxi', label: 'Pearl Taxi' },
+      { href: '/social', label: 'Social' }
     ]
   },
   {
@@ -55,7 +56,7 @@ export default function SiteFooter() {
           </div>
           <p className="market-footer__tagline">
             Sri Lanka&apos;s premier multi-vertical marketplace. Properties, stays, vehicles,
-            events, experiences, taxi, and local SMEs in one premium ecosystem.
+            events, taxi, experiences, social community, and local SMEs in one premium ecosystem.
           </p>
           <div className="market-footer__payments">
             <p>Accepted payments</p>
