@@ -1,4 +1,4 @@
-name: Deploy To Coolify
+name: Deploy to Production
 
 on:
   push:
@@ -14,22 +14,70 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Trigger Coolify deployment
+        id: coolify
         env:
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
-          COOLIFY_URL: http://84.247.149.182:8000
-          COOLIFY_APP_UUID: k3atnf4hmmc6gyjvuenzljk1
         run: |
           set -euo pipefail
 
-          response=$(curl --silent --show-error --location \
-            --request POST "${COOLIFY_URL}/api/v1/deploy?uuid=${COOLIFY_APP_UUID}&force=false" \
+          response=$(curl --silent --fail-with-body \
+            --request POST \
+            "http://84.247.149.182:8000/api/v1/deploy?uuid=k3atnf4hmmc6gyjvuenzljk1&force=false" \
             --header "Authorization: Bearer ${COOLIFY_TOKEN}" \
             --header "Accept: application/json")
 
           echo "Coolify response: ${response}"
 
-          if ! echo "${response}" | grep -q "deployment queued"; then
-            echo "Deployment was not queued as expected."
+          deployment_uuid=$(echo "${response}" | jq -r '.deployments[0].deployment_uuid // empty')
+
+          if [ -z "${deployment_uuid}" ]; then
+            echo "::error::Failed to get deployment UUID from Coolify response."
             exit 1
           fi
+
+          echo "deployment_uuid=${deployment_uuid}" >> "${GITHUB_OUTPUT}"
+
+          {
+            echo "## Deployment triggered :rocket:"
+            echo "- **Deployment UUID**: \`${deployment_uuid}\`"
+            echo "- **Logs**: http://84.247.149.182:8000/project/j13dsyoaeih11g5bi177exj4/environment/cxnxt345me5m17hy7beqhde9/application/k3atnf4hmmc6gyjvuenzljk1/deployment/${deployment_uuid}"
+            echo "- **App URL**: http://k3atnf4hmmc6gyjvuenzljk1.84.247.149.182.sslip.io"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Wait for deployment to finish
+        env:
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+          DEPLOYMENT_UUID: ${{ steps.coolify.outputs.deployment_uuid }}
+        run: |
+          set -euo pipefail
+
+          echo "Polling deployment ${DEPLOYMENT_UUID} ..."
+
+          for i in $(seq 1 30); do
+            status=$(curl --silent --fail \
+              "http://84.247.149.182:8000/api/v1/deployments/${DEPLOYMENT_UUID}" \
+              --header "Authorization: Bearer ${COOLIFY_TOKEN}" \
+              --header "Accept: application/json" \
+              | jq -r '.status // "unknown"')
+
+            echo "  [${i}/30] status: ${status}"
+
+            case "${status}" in
+              finished)
+                echo "Deployment finished successfully."
+                exit 0
+                ;;
+              failed|error|cancelled)
+                echo "::error::Deployment ended with status: ${status}"
+                exit 1
+                ;;
+            esac
+
+            sleep 10
+          done
+
+          echo "::warning::Timed out waiting for deployment. Check Coolify for status."
