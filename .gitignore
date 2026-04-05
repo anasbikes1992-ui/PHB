@@ -46,3 +46,6 @@ flutter-monorepo/**/*.g.dart
 flutter-monorepo/**/android/.gradle/
 flutter-monorepo/**/ios/Pods/
 flutter-monorepo/**/ios/.symlinks/
+
+.playwright-test-results
+.playwright-*
